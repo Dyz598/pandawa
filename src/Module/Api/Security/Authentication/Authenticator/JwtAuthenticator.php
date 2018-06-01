@@ -53,12 +53,13 @@ final class JwtAuthenticator implements AuthenticatorInterface
     public function sign(SignableUserInterface $user, array $payload = []): Signature
     {
         $claims = array_merge($user->getSignPayload(), $payload);
+        $ttl = $payload['ttl'] ?? $this->ttl;
 
-        if (!empty($this->ttl)) {
-            $claims['exp'] = date('Y-m-d H:i:s', strtotime(sprintf('+%d seconds', $this->ttl)));
+        if (!empty($ttl)) {
+            $claims['exp'] = date('Y-m-d H:i:s', strtotime(sprintf('+%d seconds', $ttl)));
         }
 
-        return new Signature((string) $this->jwt->sign($this->defaultAlgo, $claims), ['expires_in' => $this->ttl]);
+        return new Signature((string) $this->jwt->sign($this->defaultAlgo, $claims), ['expires_in' => $ttl]);
     }
 
     /**
